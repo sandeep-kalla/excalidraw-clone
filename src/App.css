@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Reset and ensure full viewport */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Root app container */
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Prevent browser zoom on canvas */
+body {
+  overscroll-behavior: none;
+}
+
+/* Completely disable browser zoom with Ctrl+wheel */
+html {
+  touch-action: manipulation;
+}
+
+canvas {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

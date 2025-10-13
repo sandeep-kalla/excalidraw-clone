@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Custom animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Text editor overlay - minimal styling, just show cursor */
+.excalidraw-text-editor {
+  font-family: Arial, sans-serif;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.excalidraw-text-editor:focus {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
