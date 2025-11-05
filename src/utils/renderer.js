@@ -213,7 +213,8 @@ export const renderText = (ctx, element, zoom = 1) => {
   ctx.save();
   
   // Set text properties
-  const fontSize = (element.fontSize || 16) * zoom;
+  // Note: Don't multiply by zoom here because ctx.scale() is already applied in Canvas.jsx
+  const fontSize = element.fontSize || 16;
   ctx.font = `${element.fontWeight || 'normal'} ${fontSize}px ${element.fontFamily || 'sans-serif'}`;
   ctx.fillStyle = element.stroke || '#000000';
   ctx.textAlign = element.textAlign || 'left';
