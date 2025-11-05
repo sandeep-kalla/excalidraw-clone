@@ -7,6 +7,7 @@ import OpacitySlider from './OpacitySlider';
 import LayerControls from './LayerControls';
 import AlignmentTools from './AlignmentTools';
 import ActionButtons from './ActionButtons';
+import FontFamilyPicker from './FontFamilyPicker';
 
 /**
  * Left Sidebar - Collapsible Properties Panel
@@ -20,17 +21,20 @@ export default function Sidebar({ isOpen, onToggle }) {
     fillColor, 
     strokeWidth, 
     opacity,
+    fontFamily,
     selectedElementIds,
     setStrokeColor,
     setFillColor,
     setStrokeWidth,
     setOpacity,
+    setFontFamily,
   } = useEditorStore();
 
   const { currentCanvas, updateElement, renameCanvas } = useCanvasStore();
   const [expandedSections, setExpandedSections] = useState({
     stroke: true,
     background: true,
+    text: false,
     advanced: false,
   });
 
@@ -40,6 +44,7 @@ export default function Sidebar({ isOpen, onToggle }) {
   ) || [];
 
   const hasSelection = selectedElements.length > 0;
+  const hasTextSelection = selectedElements.some(el => el.type === 'text');
 
   // Apply style changes to selected elements
   const applyStyleToSelected = (updates) => {
@@ -72,6 +77,12 @@ export default function Sidebar({ isOpen, onToggle }) {
   const handleOpacityChange = (newOpacity) => {
     setOpacity(newOpacity);
     applyStyleToSelected({ opacity: newOpacity });
+  };
+
+  // Handle font family change
+  const handleFontFamilyChange = (newFontFamily) => {
+    setFontFamily(newFontFamily);
+    applyStyleToSelected({ fontFamily: newFontFamily });
   };
 
   const toggleSection = (section) => {
@@ -212,6 +223,25 @@ export default function Sidebar({ isOpen, onToggle }) {
             onChange={handleOpacityChange}
           />
         </div>
+
+        {/* Font Family - Only show for text elements or when text is selected */}
+        {hasTextSelection && (
+          <div className="border-t border-gray-100 pt-3">
+            <button
+              onClick={() => toggleSection('text')}
+              className="flex items-center justify-between w-full text-xs font-medium text-gray-700 mb-2 hover:text-gray-900"
+            >
+              <span>Font</span>
+              {expandedSections.text ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {expandedSections.text && (
+              <FontFamilyPicker
+                fontFamily={fontFamily}
+                onChange={handleFontFamilyChange}
+              />
+            )}
+          </div>
+        )}
 
         {/* Advanced options - Only show when elements are selected */}
         {hasSelection && (

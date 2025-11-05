@@ -61,6 +61,7 @@ class TextTool {
       stroke: '#000000',
       strokeWidth: 2,
       opacity: 100,
+      fontFamily: 'Arial, sans-serif',
     };
 
     const newElement = {
@@ -73,7 +74,7 @@ class TextTool {
       text: '',
       stroke: style.stroke,
       fontSize: 20,
-      fontFamily: 'Arial, sans-serif',
+      fontFamily: style.fontFamily || 'Arial, sans-serif',
       fontWeight: 'normal',
       textAlign: 'left',
       opacity: style.opacity,

@@ -13,6 +13,7 @@ export const useEditorStore = create((set, get) => ({
   fillColor: DEFAULT_ELEMENT.FILL,
   strokeWidth: DEFAULT_ELEMENT.STROKE_WIDTH,
   opacity: DEFAULT_ELEMENT.OPACITY,
+  fontFamily: DEFAULT_ELEMENT.FONT_FAMILY || 'Arial, sans-serif',
   
   // Viewport settings
   zoom: ZOOM.DEFAULT,
@@ -60,6 +61,11 @@ export const useEditorStore = create((set, get) => ({
    * Set opacity
    */
   setOpacity: (opacity) => set({ opacity }),
+
+  /**
+   * Set font family
+   */
+  setFontFamily: (fontFamily) => set({ fontFamily }),
 
   /**
    * Set zoom level
@@ -176,6 +182,7 @@ export const useEditorStore = create((set, get) => ({
     fill: get().fillColor,
     strokeWidth: get().strokeWidth,
     opacity: get().opacity,
+    fontFamily: get().fontFamily,
   }),
 
   /**
@@ -187,6 +194,7 @@ export const useEditorStore = create((set, get) => ({
     fillColor: DEFAULT_ELEMENT.FILL,
     strokeWidth: DEFAULT_ELEMENT.STROKE_WIDTH,
     opacity: DEFAULT_ELEMENT.OPACITY,
+    fontFamily: DEFAULT_ELEMENT.FONT_FAMILY || 'Arial, sans-serif',
     zoom: ZOOM.DEFAULT,
     scrollX: 0,
     scrollY: 0,
