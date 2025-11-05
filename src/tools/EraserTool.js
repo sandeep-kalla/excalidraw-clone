@@ -107,11 +107,22 @@ class EraserTool {
       case 'arrow':
       case 'line':
         // Check if point is near the line
-        return this.distanceToLineSegment(
-          x, y,
-          element.x, element.y,
-          element.x + element.width, element.y + element.height
-        ) <= radius;
+        // Use x1, y1, x2, y2 if available, otherwise use x, y, width, height
+        if (element.x1 !== undefined && element.y1 !== undefined &&
+            element.x2 !== undefined && element.y2 !== undefined) {
+          return this.distanceToLineSegment(
+            x, y,
+            element.x1, element.y1,
+            element.x2, element.y2
+          ) <= radius;
+        } else {
+          // Fallback to old format
+          return this.distanceToLineSegment(
+            x, y,
+            element.x, element.y,
+            element.x + element.width, element.y + element.height
+          ) <= radius;
+        }
         
       case 'draw':
       case 'freedraw':

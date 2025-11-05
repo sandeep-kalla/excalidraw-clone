@@ -5,6 +5,30 @@ import rough from 'roughjs';
  */
 
 /**
+ * Draw an arrowhead at the end of a line
+ */
+const drawArrowhead = (ctx, fromX, fromY, toX, toY, strokeWidth) => {
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+  const headLength = Math.max(10, strokeWidth * 5);
+  
+  const angle1 = angle - Math.PI / 6;
+  const angle2 = angle + Math.PI / 6;
+  
+  const point1X = toX - headLength * Math.cos(angle1);
+  const point1Y = toY - headLength * Math.sin(angle1);
+  
+  const point2X = toX - headLength * Math.cos(angle2);
+  const point2Y = toY - headLength * Math.sin(angle2);
+  
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(point1X, point1Y);
+  ctx.lineTo(point2X, point2Y);
+  ctx.closePath();
+  ctx.fill();
+};
+
+/**
  * Export canvas as PNG image
  * @param {Object} canvas - Canvas object with elements
  * @param {string} filename - Filename for download
@@ -64,18 +88,34 @@ export const exportToPNG = (canvas, filename = 'canvas.png') => {
           break;
           
         case 'arrow':
-          if (element.points && element.points.length > 0) {
-            const adjustedPoints = element.points.map(p => {
-              const px = typeof p === 'object' && 'x' in p ? p.x : p[0];
-              const py = typeof p === 'object' && 'y' in p ? p.y : p[1];
-              return [px + x, py + y];
-            });
-            rc.curve(adjustedPoints, {
+          // Draw arrow line and arrowhead
+          if (element.x1 !== undefined && element.y1 !== undefined &&
+              element.x2 !== undefined && element.y2 !== undefined) {
+            const adjustedX1 = element.x1 - bounds.minX + padding;
+            const adjustedY1 = element.y1 - bounds.minY + padding;
+            const adjustedX2 = element.x2 - bounds.minX + padding;
+            const adjustedY2 = element.y2 - bounds.minY + padding;
+            
+            rc.line(adjustedX1, adjustedY1, adjustedX2, adjustedY2, {
               stroke: element.stroke,
               strokeWidth: element.strokeWidth,
               roughness: element.roughness,
               seed: element.seed,
             });
+            
+            // Draw arrowheads
+            const arrowType = element.arrowType || 'end';
+            ctx.save();
+            ctx.fillStyle = element.stroke;
+            
+            if (arrowType === 'start' || arrowType === 'both') {
+              drawArrowhead(ctx, adjustedX2, adjustedY2, adjustedX1, adjustedY1, element.strokeWidth || 2);
+            }
+            if (arrowType === 'end' || arrowType === 'both') {
+              drawArrowhead(ctx, adjustedX1, adjustedY1, adjustedX2, adjustedY2, element.strokeWidth || 2);
+            }
+            
+            ctx.restore();
           }
           break;
           
@@ -214,18 +254,61 @@ export const exportToSVG = (canvas, filename = 'canvas.svg') => {
           break;
           
         case 'arrow':
-          if (element.points && element.points.length > 0) {
-            const adjustedPoints = element.points.map(p => {
-              const px = typeof p === 'object' && 'x' in p ? p.x : p[0];
-              const py = typeof p === 'object' && 'y' in p ? p.y : p[1];
-              return [px + x, py + y];
-            });
-            node = rc.curve(adjustedPoints, {
+          // Draw arrow line and arrowhead in SVG
+          if (element.x1 !== undefined && element.y1 !== undefined &&
+              element.x2 !== undefined && element.y2 !== undefined) {
+            const adjustedX1 = element.x1 - bounds.minX + padding;
+            const adjustedY1 = element.y1 - bounds.minY + padding;
+            const adjustedX2 = element.x2 - bounds.minX + padding;
+            const adjustedY2 = element.y2 - bounds.minY + padding;
+            
+            // Draw the line
+            node = rc.line(adjustedX1, adjustedY1, adjustedX2, adjustedY2, {
               stroke: element.stroke,
               strokeWidth: element.strokeWidth,
               roughness: element.roughness,
               seed: element.seed,
             });
+            
+            // Add arrowheads as separate SVG elements
+            const arrowType = element.arrowType || 'end';
+            const strokeWidth = element.strokeWidth || 2;
+            const headLength = Math.max(10, strokeWidth * 5);
+            
+            let arrowheadsSvg = '';
+            
+            if (arrowType === 'start' || arrowType === 'both') {
+              const angle = Math.atan2(adjustedY1 - adjustedY2, adjustedX1 - adjustedX2);
+              const angle1 = angle - Math.PI / 6;
+              const angle2 = angle + Math.PI / 6;
+              
+              const point1X = adjustedX1 - headLength * Math.cos(angle1);
+              const point1Y = adjustedY1 - headLength * Math.sin(angle1);
+              const point2X = adjustedX1 - headLength * Math.cos(angle2);
+              const point2Y = adjustedY1 - headLength * Math.sin(angle2);
+              
+              arrowheadsSvg += `<path d="M ${adjustedX1} ${adjustedY1} L ${point1X} ${point1Y} L ${point2X} ${point2Y} Z" fill="${element.stroke}" />`;
+            }
+            
+            if (arrowType === 'end' || arrowType === 'both') {
+              const angle = Math.atan2(adjustedY2 - adjustedY1, adjustedX2 - adjustedX1);
+              const angle1 = angle - Math.PI / 6;
+              const angle2 = angle + Math.PI / 6;
+              
+              const point1X = adjustedX2 - headLength * Math.cos(angle1);
+              const point1Y = adjustedY2 - headLength * Math.sin(angle1);
+              const point2X = adjustedX2 - headLength * Math.cos(angle2);
+              const point2Y = adjustedY2 - headLength * Math.sin(angle2);
+              
+              arrowheadsSvg += `<path d="M ${adjustedX2} ${adjustedY2} L ${point1X} ${point1Y} L ${point2X} ${point2Y} Z" fill="${element.stroke}" />`;
+            }
+            
+            // Combine line and arrowheads
+            if (node && arrowheadsSvg) {
+              svgContent += '    ' + node.outerHTML + '\n';
+              svgContent += '    ' + arrowheadsSvg + '\n';
+              node = null; // Prevent duplicate addition below
+            }
           }
           break;
           
